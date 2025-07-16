@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>Notebook Viewer Demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/stackoverflow-light.min.css">
+    <link rel="stylesheet" href="notebook.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="notebook"></div>
+
+  <script type="module">
+    import {Notebook} from "../src/index.ts";
+
+    fetch('./sample.ipynb')
+	    .then(r => r.text())
+	    .then(json => {
+		    const notebook = new Notebook(json);
+		    document.getElementById('notebook').innerHTML = notebook.render();
+	    });
+  </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script>
+document.addEventListener('click', (e) => {
+	const btn = e.target.closest('[data-toggle]');
+	if (!btn) return;
+
+	const selector = btn.getAttribute('data-toggle');
+	const target = document.querySelector(selector);
+	if (target) {
+		target.classList.toggle('hidden');
+		btn.innerHTML = target.classList.contains('hidden') ? '&#9654; Afficher' : '&#9660; Masquer';
+	}
+});
+</script>
+</body>
+</html>
