@@ -1,0 +1,111 @@
+* {
+	font-family             : "Roboto", sans-serif;
+	font-optical-sizing     : auto;
+	font-style              : normal;
+	font-variation-settings : "wdth" 100;
+}
+
+#notebook {
+	line-height : 1.5;
+	margin      : auto;
+	padding     : 1rem;
+	background  : #fdfdfd;
+	color       : #272727;
+	max-width   : 1024px;
+}
+
+.cell-content {
+	border-radius : 4px;
+	display       : flex;
+	margin-bottom : 5px;
+}
+
+.input-code {
+	overflow      : auto;
+	border-color  : #999;
+	border-width  : 1px;
+	border-style  : solid;
+	border-radius : 4px;
+	margin        : 0;
+}
+
+code {
+	font-family : "Fira Code", monospace;
+	font-size   : 0.95em;
+	padding     : 0;
+}
+
+.markdown h1 { font-size : 2em; margin-top : 1.5em; }
+
+.markdown h2 { font-size : 1.6em; margin-top : 1.2em; }
+
+.markdown p, .markdown ul { margin : 0.5em 0; }
+
+.out.code-row {
+	display        : flex;
+	flex-direction : row;
+	align-items    : center;
+}
+
+.outputs {
+	border-radius : 4px;
+	max-height    : 100vh;
+	overflow      : auto;
+	width         : 100%;
+}
+
+.output-stream, .output-result {
+	padding : 0;
+	margin  : auto;
+}
+
+.output-error {
+	color       : #ff6b6b;
+	font-weight : bold;
+}
+
+.code-row {
+	width : 100%;
+}
+
+.prompt {
+	width       : 76px;
+	font-family : monospace;
+	color       : #999;
+	user-select : none;
+	flex-shrink : 0;
+	text-align  : right;
+	padding     : 5px;
+}
+
+.cell.collapsed {
+	border-radius : 4px;
+	padding       : 0.5rem;
+	cursor        : pointer;
+	position      : relative;
+}
+
+.collapsed-toggle {
+	font-style     : italic;
+	color          : #aaa;
+	margin-bottom  : 0.25rem;
+	pointer-events : none;
+}
+
+.cell.collapsed .cell-content {
+	display : none;
+}
+
+.toggle-btn {
+	background    : none;
+	border        : none;
+	color         : #aaa;
+	cursor        : pointer;
+	margin-bottom : 0.5rem;
+	font-style    : italic;
+	font-size     : 0.9rem;
+}
+
+.hidden {
+	display : none !important;
+}

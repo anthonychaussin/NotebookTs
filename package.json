@@ -1,0 +1,55 @@
+{
+  "author": "Anthony Chaussin chaussin.anthony@gmail.com",
+  "name": "notebook-viewer-ts",
+  "license": "MIT",
+  "description": "HTML viewer for Jupyter .ipynb files with Markdown rendering, code, outputs and folding.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anthonychaussin/NotebookTs.git"
+  },
+  "homepage": "https://github.com/anthonychaussin/NotebookTs/blob/master/README.md",
+  "version": "0.0.7",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:lib": "tsc",
+    "build:cdn": "vite build --config vite.config.cdn.ts",
+    "build": "npm run build:lib && npm run build:cdn"
+  },
+  "files": [
+    "dist",
+    "cdn",
+    "README.md",
+    "demo/notebook.css"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "highlight.js": "^11.11.1",
+    "marked": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.14",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4"
+  },
+  "keywords": [
+    "jupyter",
+    "ipynb",
+    "notebook",
+    "viewer",
+    "typescript",
+    "parser",
+    "markdown",
+    "highlight"
+  ]
+}
