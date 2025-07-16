@@ -1,12 +1,12 @@
-# notebook-ts
+# notebook-viewer-ts
 
-📘 Une librairie TypeScript pour parser et afficher les fichiers Jupyter `.ipynb` en HTML.
+📘 HTML viewer for Jupyter .ipynb files with Markdown rendering, code, outputs and folding.
 
-- ✅ Orientée objet (`Notebook`, `Cell`, `CellOutput`)
-- ✅ Rendu propre en HTML avec gestion du Markdown, code, outputs, erreurs
-- ✅ Support des cellules repliées (`collapsed`)
-- ✅ Compatible avec Tailwind, Bootstrap ou styles personnalisés
-- ❌ Aucun runtime Jupyter nécessaire
+- ✅ Object oriented (`Notebook`, `Cell`, `CellOutput`)
+- ✅ Clean HTML rendering with Markdown management, code, outputs, errors
+- ✅ Folded cell support (`collapsed`)
+- ✅ Compatible with Tailwind, Bootstrap or custom styles
+- ❌ No Jupyter runtime required
 
 ---
 
@@ -18,16 +18,16 @@ npm install notebook-viewer-ts
 
 ---
 
-## 🔧 Utilisation de base
+## 🔧 Basic use
 
 ```ts
 import { Notebook } from 'notebook-viewer-ts';
 
-fetch('/mon-fichier.ipynb')
+fetch('/mon-file.ipynb')
   .then(res => res.text())
   .then(json => {
-    const notebook = new Notebook(json); // string ou objet JSON
-    const html = notebook.render('tailwind'); // 'none' ou 'bootstrap' aussi
+    const notebook = new Notebook(json); // string or JSON object
+    const html = notebook.render('tailwind'); // 'none' or 'bootstrap' to
     document.getElementById('notebook').innerHTML = html;
   });
 ```
@@ -38,14 +38,14 @@ fetch('/mon-fichier.ipynb')
 
 ---
 
-## 💅 Style recommandé
+## 💅 Recommended style
 
-Ce package ne force aucun style.  
-Tu peux importer un style recommandé (optionnel) :
+This package doesn't force any style.  
+You can import a recommended style (optional):
 
-Disponible dans le répo git : [notebook.css](https://github.com/anthonychaussin/NotebookTs/blob/master/demo/notebook.css)
+Available in git repo : [notebook.css](https://github.com/anthonychaussin/NotebookTs/blob/master/demo/notebook.css)
 
-Ou intégrer ton propre style avec Tailwind, Bootstrap, etc.
+Or integrate your own style with Tailwind, Bootstrap, etc.
 
 ---
 
@@ -53,21 +53,21 @@ Ou intégrer ton propre style avec Tailwind, Bootstrap, etc.
 
 `new Notebook(json: string | object)`
 
-Construit un notebook à partir d’un JSON ou d’une chaîne JSON.
+Builds a notebook from a JSON or JSON string.
 
 `notebook.render(ui?: 'none' | 'tailwind' | 'bootstrap'): string`
 
-Retourne un HTML complet à injecter dans ton DOM.
+Returns a complete HTML file to be injected into your DOM.
 
 ---
 
-## 📚 Exemples
+## 📚 Examples
 
-### Rendu Tailwind + repliement
-- `ui: 'tailwind'` ajoute un bouton « Afficher/Masquer » dans chaque cellule repliée
-- Tu peux utiliser `ui: 'none'` pour intégrer ton propre système
+### Tailwind rendering + folding
+- `ui: 'tailwind'` adds a “Show/Hide” button to each collapsed cell
+- You can use `ui: ‘none’` to integrate your own style
 
-### Intégration Angular (exemple simplifié)
+### Angular integration (simplified example)
 
 ```ts
 @Component({
@@ -88,7 +88,7 @@ export class NotebookViewerComponent {
 
 ---
 
-## 🔧 Développement
+## 🔧 Development
 
 ### Build
 
@@ -104,7 +104,7 @@ npm publish --access public
 
 ---
 
-## 🛠️ À venir (idées)
+## 🛠️ Coming soon (ideas)
 
 
 ---

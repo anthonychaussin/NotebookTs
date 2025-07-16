@@ -7,6 +7,8 @@ export class Notebook {
 	public metadata!: Metadata;
 	public nbformat!: number;
 	public nbformat_minor!: number;
+	public displayText: string = "Display";
+	public foldText: string = "Fold";
 
 	constructor(json: string | any) {
 		const raw = typeof json === 'string' ? JSON.parse(json) : json;
@@ -45,7 +47,7 @@ export class Notebook {
 			return `
       <div class="cell ${typeClass} border rounded p-2 mb-4">
         <button type="button" class="toggle-btn text-sm text-gray-400 hover:text-white" data-toggle="#${id}">
-          ${isCollapsed ? '▶ Afficher' : '▼ Masquer'}
+          ${isCollapsed ? '▶ ' + this.displayText : '▼ ' + this.foldText}
         </button>
         <div id="${id}" class="${isCollapsed ? 'hidden' : ''}">
           ${content}
@@ -56,7 +58,7 @@ export class Notebook {
 			return `
       <div class="cell ${typeClass} mb-4">
         <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#${id}">
-          ${isCollapsed ? '▶ Afficher' : '▼ Masquer'}
+          ${isCollapsed ? '▶ ' + this.displayText : '▼ ' + this.foldText}
         </button>
         <div id="${id}" class="collapse ${!isCollapsed ? 'show' : ''}">
           ${content}
