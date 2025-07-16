@@ -2,7 +2,7 @@ name: release
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 permissions:
   contents: write
@@ -11,6 +11,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,17 +34,37 @@ jobs:
       - name: Check if tag already exists
         id: check_tag
         run: |
-          if git ls-remote --exit-code --tags origin ${{ steps.pkg.outputs.version }}; then
+          if git ls-remote --tags origin ${{ steps.pkg.outputs.version }} | grep -q ${{ steps.pkg.outputs.version }}; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Exit if tag exists
-        if: steps.check_tag.outputs.exists == 'true'
+    outputs:
+      tag-exists: ${{ steps.check_tag.outputs.exists }}
+
+  publish:
+    needs: release
+    if: needs.release.outputs.tag-exists != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Get version again
+        id: pkg
         run: |
-          echo "Tag ${{ steps.pkg.outputs.version }} already exists. Skipping release."
-          exit 0
+          VERSION=$(node -e "console.log(require('./package.json').version)")
+          echo "version=v$VERSION" >> $GITHUB_OUTPUT
 
       - name: Create Git tag
         run: |
@@ -59,11 +80,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Build project
         run: npm run build
 
-      - name: Publish package
+      - name: Publish to npm
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

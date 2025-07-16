@@ -1,13 +1,13 @@
 {
   "author": "Anthony Chaussin chaussin.anthony@gmail.com",
-  "name": "notebook-ts",
+  "name": "notebook-viewer-ts",
   "license": "MIT",
   "description": "Afficheur HTML pour fichiers Jupyter .ipynb avec rendu Markdown, code, outputs et repliement.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/anthonychaussin/NotebookTs"
+    "url": "git+https://github.com/anthonychaussin/NotebookTs.git"
   },
-  "homepage": "https://github.com/anthonychaussin/NotebookTs#README.md",
+  "homepage": "https://github.com/anthonychaussin/NotebookTs/blob/master/README.md",
   "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

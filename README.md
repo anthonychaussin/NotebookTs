@@ -13,7 +13,7 @@
 ## 🚀 Installation
 
 ```bash
-npm install notebook-ts
+npm install notebook-viewer-ts
 ```
 
 ---
@@ -21,7 +21,7 @@ npm install notebook-ts
 ## 🔧 Utilisation de base
 
 ```ts
-import { Notebook } from 'notebook-ts';
+import { Notebook } from 'notebook-viewer-ts';
 
 fetch('/mon-fichier.ipynb')
   .then(res => res.text())
@@ -43,7 +43,7 @@ fetch('/mon-fichier.ipynb')
 Ce package ne force aucun style.  
 Tu peux importer un style recommandé (optionnel) :
 
-Disponible dans le répo git : [style.css](https://github.com/anthonychaussin/NotebookTs/demo/notebook.css)
+Disponible dans le répo git : [notebook.css](https://github.com/anthonychaussin/NotebookTs/blob/master/demo/notebook.css)
 
 Ou intégrer ton propre style avec Tailwind, Bootstrap, etc.
 
