@@ -23,7 +23,7 @@ npm install notebook-viewer-ts
 ```ts
 import { Notebook } from 'notebook-viewer-ts';
 
-fetch('/mon-file.ipynb')
+fetch('/my-file.ipynb')
   .then(res => res.text())
   .then(json => {
     const notebook = new Notebook(json); // string or JSON object
@@ -95,13 +95,6 @@ export class NotebookViewerComponent {
 ```bash
 npm run build
 ```
-
-### Publication
-
-```bash
-npm publish --access public
-```
-
 ---
 
 ## 🛠️ Coming soon (ideas)

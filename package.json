@@ -8,7 +8,7 @@
     "url": "git+https://github.com/anthonychaussin/NotebookTs.git"
   },
   "homepage": "https://github.com/anthonychaussin/NotebookTs/blob/master/README.md",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -33,6 +33,7 @@
     "marked": "^16.0.0"
   },
   "devDependencies": {
+    "@types/node": "^24.0.14",
     "typescript": "^5.8.3",
     "vite": "^7.0.4"
   },

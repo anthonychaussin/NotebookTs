@@ -11,9 +11,8 @@
 <body>
   <div id="notebook"></div>
 
-  <script type="module">
-    import {Notebook} from "../src/index.ts";
-
+    <script type="module">
+    import { Notebook } from 'https://cdn.jsdelivr.net/npm/notebook-viewer-ts@latest/cdn/notebook-viewer-ts.es.js';
     fetch('./sample.ipynb')
 	    .then(r => r.text())
 	    .then(json => {
