@@ -23,7 +23,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org/'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Get version from package.json
         id: pkg
@@ -58,7 +58,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org/'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Get version again
         id: pkg

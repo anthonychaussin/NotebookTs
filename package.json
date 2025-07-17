@@ -8,16 +8,21 @@
     "url": "git+https://github.com/anthonychaussin/NotebookTs.git"
   },
   "homepage": "https://github.com/anthonychaussin/NotebookTs/blob/master/README.md",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc"
+    "build:lib": "tsc",
+    "build:cdn": "vite build --config vite.config.cdn.ts",
+    "build": "npm run build:lib && npm run build:cdn"
   },
   "files": [
-    "dist"
+    "dist",
+    "cdn",
+    "README.md",
+    "demo/notebook.css"
   ],
   "exports": {
     ".": {
