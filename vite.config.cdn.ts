@@ -9,15 +9,7 @@ export default defineConfig({
       fileName: (format) => `notebook-viewer-ts.${format}.js`,
       formats: ['es', 'umd'],
     },
-    rollupOptions: {
-      output: {
-        globals: {
-          marked: 'marked',
-          'highlight.js': 'highlight.js',
-        },
-      },
-      external: [],
-    },
+    rollupOptions: {},
     minify: true,
     outDir: 'cdn',
     emptyOutDir: true,

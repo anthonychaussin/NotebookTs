@@ -8,7 +8,7 @@
     "url": "git+https://github.com/anthonychaussin/NotebookTs.git"
   },
   "homepage": "https://github.com/anthonychaussin/NotebookTs/blob/master/README.md",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
