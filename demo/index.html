@@ -13,10 +13,10 @@
 
     <script type="module">
 	    import {Notebook} from 'https://cdn.jsdelivr.net/npm/notebook-viewer-ts@latest/cdn/notebook-viewer-ts.es.js';
-	    import hljs from 'https://cdn.jsdelivr.net/npm/highlight.js@latest/es/index.js';
+	    import highlight from 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/es/core.min.js';
 	    import {marked} from 'https://cdn.jsdelivr.net/npm/marked@latest/lib/marked.esm.js';
 
-	    window.hljs = hljs;
+	    window.highlight = highlight;
 	    window.marked = marked;
 
 	    fetch('./sample.ipynb')
@@ -26,7 +26,6 @@
 			    document.getElementById('notebook').innerHTML = notebook.render();
 		    });
   </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
 <script>
 document.addEventListener('click', (e) => {
 	const btn = e.target.closest('[data-toggle]');

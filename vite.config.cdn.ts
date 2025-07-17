@@ -13,10 +13,10 @@ export default defineConfig({
       output: {
         globals: {
           marked: 'marked',
-          'highlight.js': 'hljs',
+          'highlight.js': 'highlight.js',
         },
       },
-      external: ['marked', 'highlight.js'],
+      external: [],
     },
     minify: true,
     outDir: 'cdn',
