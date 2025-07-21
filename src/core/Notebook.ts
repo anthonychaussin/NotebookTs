@@ -13,6 +13,10 @@ export class Notebook {
 	constructor(json: string | any) {
 		const raw = typeof json === 'string' ? JSON.parse(json) : json;
 
+		if(raw.worksheets){
+			raw.cells = raw.worksheets[0].cells;
+		}
+
 		raw.cells.forEach((c: any) => {
 			switch (c.cell_type) {
 				case 'code':
@@ -31,10 +35,10 @@ export class Notebook {
 	}
 
 	render(ui: UILibrary = 'none'): string {
-		return this.cells.map((c: Cell, index: number) => this.renderCell(c, this.metadata.language_info.name, index, ui)).join('\n');
+		return this.cells.map((c: Cell, index: number) => this.renderCell(c, index, ui, this.metadata.language_info?.name)).join('\n');
 	}
 
-	renderCell(cell: Cell, language: string, index: number, ui: UILibrary): string {
+	renderCell(cell: Cell, index: number, ui: UILibrary, language?: string): string {
 		const isCollapsed = cell.metadata?.collapsed;
 		const typeClass = cell.cell_type === 'code' ? 'code' : 'markdown';
 		const content = cell.cell_type === 'code'
@@ -84,7 +88,7 @@ export class Notebook {
 export interface Metadata {
 	signature: string;
 	kernel_info: KernelInfo;
-	language_info: LanguageInfo;
+	language_info?: LanguageInfo;
 }
 
 export interface KernelInfo {
