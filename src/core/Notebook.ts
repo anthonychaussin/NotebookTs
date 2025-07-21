@@ -51,7 +51,7 @@ export class Notebook {
 			return `
       <div class="cell ${typeClass} border rounded p-2 mb-4">
         <button type="button" class="toggle-btn text-sm text-gray-400 hover:text-white" data-toggle="#${id}">
-          ${isCollapsed ? '▶ ' + this.displayText : '▼ ' + this.foldText}
+          ${isCollapsed ? '▶ ' + this.displayText : ''}
         </button>
         <div id="${id}" class="${isCollapsed ? 'hidden' : ''}">
           ${content}
@@ -62,7 +62,7 @@ export class Notebook {
 			return `
       <div class="cell ${typeClass} mb-4">
         <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#${id}">
-          ${isCollapsed ? '▶ ' + this.displayText : '▼ ' + this.foldText}
+          ${isCollapsed ? '▶ ' + this.displayText : ''}
         </button>
         <div id="${id}" class="collapse ${!isCollapsed ? 'show' : ''}">
           ${content}
