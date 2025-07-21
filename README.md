@@ -77,10 +77,10 @@ Returns a complete HTML file to be injected into your DOM.
   template: `<div [innerHTML]="html"></div>`
 })
 export class NotebookViewerComponent {
-  notebook: string = input<string>();
+  notebookJson: string = input<string>();
   html = computed(() => {
-    if(notebook()){
-      return new Notebook(notebook()).render();
+    if(notebookJson()){
+      return new Notebook(notebookJson()).render();
     } else {
       return '';
     }

@@ -10,7 +10,7 @@ export class CellOutputStream implements CellOutput {
 		Object.assign(this, c);
 	}
 
-	public render(language: string): string {
+	public render(language?: string): string {
 		return `<pre class="output-stream">${hljs.highlight(this.text?.join(''), {language: 'bash'}).value}</pre>`;
 	}
 }
@@ -26,7 +26,7 @@ export class CellOutputError implements CellOutput {
 		Object.assign(this, c);
 	}
 
-	public render(language: string): string {
+	public render(language?: string): string {
 		return `<pre class="output-error">${this.ename}: ${this.evalue}\n${this.traceback?.join('\n')}</pre>`;
 	}
 }
@@ -45,11 +45,10 @@ export class CellOutputData implements CellOutput {
 		Object.assign(this, c);
 	}
 
-	public render(language: string): string {
+	public render(language?: string): string {
 		let display_data = this.data ?? {};
 		let disp_result = '';
 		if (display_data['text/html']) {
-			console.log(display_data);
 			disp_result += `
   <iframe
     sandbox="allow-same-origin"
@@ -83,7 +82,7 @@ export class CellOutputExecResult implements CellOutput {
 		Object.assign(this, c);
 	}
 
-	public render(language: string): string {
+	public render(language?: string): string {
 		const execute_result = this.data ?? {};
 		let exe_result = '';
 		if (execute_result['text/plain']) {
@@ -99,6 +98,25 @@ export class CellOutputExecResult implements CellOutput {
 	}
 }
 
+export class CellPyOutputExecResult implements CellOutput {
+	public output_type!: 'pyout';
+	public execution_count?: number;
+	public prompt_number?: number;
+	public text: string [] = [];
+	public metadata?: CellOutputMetadata;
+
+	constructor(c: any) {
+		Object.assign(this, c);
+		if(this.prompt_number) {
+			this.execution_count = this.prompt_number;
+		}
+	}
+
+	public render(language?: string): string {
+		return `<pre class="output-result">${hljs.highlight(this.text.join(''), {language: 'python'}).value}</pre>`;
+	}
+}
+
 export interface CellOutputMetadata {
 	isolated?: boolean;
 	'text/plain'?: Record<string, any>;
@@ -111,7 +129,7 @@ export interface CellOutputMetadata {
 }
 
 export interface CellOutput {
-	output_type: 'execute_result' | 'stream' | 'display_data' | 'error';
+	output_type: 'execute_result' | 'stream' | 'display_data' | 'error' | 'pyout';
 
-	render(language: string): string;
+	render(language?: string): string;
 }
