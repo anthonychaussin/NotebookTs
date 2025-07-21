@@ -14,8 +14,8 @@ export abstract class CellOutput {
 		                                                                                                       .filter(Boolean)
 		                                                                                                       .join('')
 		                                                                                                       .trim()
-		                                                                                                       .replace(/begin\{.*}/, 'begin{aligned}')
-		                                                                                                       .replace(/end\{.*}/, 'end{aligned}'), {
+		                                                                                                       .replace(/begin\{[a-z]+}/, 'begin{aligned}')
+		                                                                                                       .replace(/end\{[a-z]+}/, 'end{aligned}'), {
 			                                                                                                  throwOnError: false,
 			                                                                                                  displayMode: true,
 			                                                                                                  trust: false
