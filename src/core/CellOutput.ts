@@ -10,9 +10,6 @@ export abstract class CellOutput {
 
 	public getLatexRender(ui: UILibrary, latex: string[]): string {
 		return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${katex.renderToString(latex.join('')
-		                                                                                                       .split('$')
-		                                                                                                       .filter(Boolean)
-		                                                                                                       .join('')
 		                                                                                                       .trim()
 		                                                                                                       .replace(/begin\{[a-z]+}/, 'begin{aligned}')
 		                                                                                                       .replace(/end\{[a-z]+}/, 'end{aligned}'), {
