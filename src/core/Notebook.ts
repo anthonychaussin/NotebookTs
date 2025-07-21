@@ -42,17 +42,19 @@ export class Notebook {
 		const isCollapsed = cell.metadata?.collapsed;
 		const typeClass = cell.cell_type === 'code' ? 'code' : 'markdown';
 		const content = cell.cell_type === 'code'
-		                ? (cell as CodeCell).render(language)
-		                : (cell as MarkdownCell).render();
+		                ? (cell as CodeCell).render(ui, language)
+		                : (cell as MarkdownCell).render(ui);
 
 		const id = `cell-${index}`;
 
 		if (ui === 'tailwind') {
 			return `
-      <div class="cell ${typeClass} border rounded p-2 mb-4">
-        <button type="button" class="toggle-btn text-sm text-gray-400 hover:text-white" data-toggle="#${id}">
-          ${isCollapsed ? '▶ ' + this.displayText : ''}
-        </button>
+      <div class="cell ${typeClass} p-2 mb-4">
+		    ${isCollapsed ?
+		    `<button type = "button" class = "toggle-btn text-sm text-gray-400" data-toggle="#${id}">
+					▶ ${this.displayText}
+					</button>` : ''
+				}
         <div id="${id}" class="${isCollapsed ? 'hidden' : ''}">
           ${content}
         </div>
@@ -60,12 +62,14 @@ export class Notebook {
     `;
 		} else if (ui === 'bootstrap') {
 			return `
-      <div class="cell ${typeClass} mb-4">
-        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#${id}">
-          ${isCollapsed ? '▶ ' + this.displayText : ''}
-        </button>
-        <div id="${id}" class="collapse ${!isCollapsed ? 'show' : ''}">
-          ${content}
+      <div id="parent-${id}" class="cell ${isCollapsed ? 'accordion-item' : ''} ${typeClass} mb-4 p-2">
+        ${isCollapsed ?
+        `<h2 class="accordion-header">
+					<button class="accordion-button btn-outline-secondary" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#${id}" aria-controls="${id}">
+          ${this.displayText}
+          </button></h2>` : ''}
+        <div id="${id}" class="accordion-collapse collapse ${isCollapsed ? '' : 'show'}" data-bs-parent="#patent-${id}">
+          <div class="accordion-body">${content}</div>
         </div>
       </div>
     `;
@@ -73,7 +77,7 @@ export class Notebook {
 			return `
   <div class="cell ${typeClass}">
   ${isCollapsed ?
-    `<button type = "button" class = "toggle-btn" data-toggle="#${id}">▶ Afficher</button>
+    `<button type = "button" class = "toggle-btn" data-toggle="#${id}">▶ ${this.displayText}</button>
 ` : ''
 			}
     <div id="${id}" class="${isCollapsed ? 'hidden' : ''}">
