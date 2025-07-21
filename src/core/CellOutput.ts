@@ -3,13 +3,23 @@ import katex from 'katex';
 import {UI_ADAPTER} from './Cell';
 import {UILibrary} from './Notebook';
 
-export class CellOutputStream implements CellOutput {
+export abstract class CellOutput {
+	public output_type!: 'execute_result' | 'stream' | 'display_data' | 'error' | 'pyout'|'pyerr';
+
+	public abstract render(ui: UILibrary, language?: string): string;
+	public getLatextRender(ui: UILibrary, latex: string[]): string {
+		return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${katex.renderToString(latex.join('').split('$').filter(Boolean).join('').trim().replace(/begin\{.*}/, "begin{aligned}").replace(/end\{.*}/, "end{aligned}"), { throwOnError: false, displayMode: true, trust: false })}</pre>`;
+	}
+}
+
+export class CellOutputStream extends CellOutput {
 	public output_type!: 'stream';
 	public name!: 'stdout' | 'stderr';
 	public text!: string[];
 	public metadata?: CellOutputMetadata;
 
 	constructor(c: any) {
+		super();
 		Object.assign(this, c);
 	}
 
@@ -18,7 +28,7 @@ export class CellOutputStream implements CellOutput {
 	}
 }
 
-export class CellOutputError implements CellOutput {
+export class CellOutputError extends CellOutput {
 	public output_type!: 'error';
 	public ename!: string;
 	public evalue!: string;
@@ -26,6 +36,7 @@ export class CellOutputError implements CellOutput {
 	public metadata?: CellOutputMetadata;
 
 	constructor(c: any) {
+		super();
 		Object.assign(this, c);
 	}
 
@@ -34,7 +45,7 @@ export class CellOutputError implements CellOutput {
 	}
 }
 
-export class CellOutputData implements CellOutput {
+export class CellOutputData extends CellOutput {
 	public output_type!: 'display_data';
 	public data?: {
 		'text/plain'?: string[];
@@ -47,6 +58,7 @@ export class CellOutputData implements CellOutput {
 	public metadata?: CellOutputMetadata;
 
 	constructor(c: any) {
+		super();
 		Object.assign(this, c);
 	}
 
@@ -56,7 +68,7 @@ export class CellOutputData implements CellOutput {
 		if(this.png){
 			return `<img src="data:image/png;base64, ${this.png}" alt="code result img">`;
 		}else if(this.latex){
-			return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${katex.renderToString(this.latex.join(''), { throwOnError: false, displayMode: true })}</pre>`;
+			return this.getLatextRender(ui, this.latex);
 		}
 		if (display_data['text/html']) {
 			disp_result += `
@@ -77,7 +89,7 @@ export class CellOutputData implements CellOutput {
 	}
 }
 
-export class CellOutputExecResult implements CellOutput {
+export class CellOutputExecResult extends CellOutput {
 	public output_type!: 'execute_result';
 	public execution_count?: number;
 	public data?: {
@@ -89,6 +101,7 @@ export class CellOutputExecResult implements CellOutput {
 	public metadata?: CellOutputMetadata;
 
 	constructor(c: any) {
+		super();
 		Object.assign(this, c);
 	}
 
@@ -108,7 +121,7 @@ export class CellOutputExecResult implements CellOutput {
 	}
 }
 
-export class CellPyOutputExecResult implements CellOutput {
+export class CellPyOutputExecResult extends CellOutput {
 	public output_type!: 'pyout';
 	public execution_count?: number;
 	public prompt_number?: number;
@@ -121,6 +134,7 @@ export class CellPyOutputExecResult implements CellOutput {
 	public metadata?: CellOutputMetadata;
 
 	constructor(c: any) {
+		super();
 		Object.assign(this, c);
 		if(this.prompt_number) {
 			this.execution_count = this.prompt_number;
@@ -143,14 +157,14 @@ export class CellPyOutputExecResult implements CellOutput {
 		} else if(this.svg){
 			return this.svg.join('');
 		} else if(this.latex){
-			return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${katex.renderToString(this.latex.join('').split('$').filter(Boolean).join('').trim().replace(/begin\{.*}/, "begin{aligned}").replace(/end\{.*}/, "end{aligned}"), { throwOnError: false, displayMode: true })}</pre>`;
+			this.getLatextRender(ui, this.latex);
 		}
 		return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(this.text.join(''), {language: 'python'}).value}</pre>`;
 	}
 }
 
 
-export class CellPyOutputExecError implements CellOutput {
+export class CellPyOutputExecError extends CellOutput {
 	public output_type!: 'pyerr';
 	public execution_count?: number;
 	public prompt_number?: number;
@@ -160,6 +174,7 @@ export class CellPyOutputExecError implements CellOutput {
 	public metadata?: CellOutputMetadata;
 
 	constructor(c: any) {
+		super();
 		Object.assign(this, c);
 		if(this.prompt_number) {
 			this.execution_count = this.prompt_number;
@@ -180,10 +195,4 @@ export interface CellOutputMetadata {
 		height?: number;
 	};
 	'application/json'?: Record<string, any>;
-}
-
-export interface CellOutput {
-	output_type: 'execute_result' | 'stream' | 'display_data' | 'error' | 'pyout'|'pyerr';
-
-	render(ui: UILibrary, language?: string): string;
 }
