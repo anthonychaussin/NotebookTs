@@ -12,36 +12,36 @@ import {
 import {UILibrary} from './Notebook';
 
 export const UI_ADAPTER: any = {
-	"tailwind": {
-		"cell-content": "rounded flex mb-1.5",
-		"input-code": "overflow-auto border border-[#999] rounded m-0",
-		"code": "font-mono text-[0.95em] p-0",
-		"output": "rounded max-h-screen overflow-auto w-full",
-		"out-code-row": "flex flex-row items-center",
-		"out-stream": "p-0 m-auto",
-		"out-result": "p-0 m-auto",
-		"out-error": "text-[#ff6b6b] font-bold",
-		"code-row": "w-full",
-		"prompt": "w-[90px] font-mono select-none flex-shrink-0 text-right p-1.5",
-		"cell-collapsed": "rounded p-2 cursor-pointer relative",
-		"toggle-btn": "bg-none border-none cursor-pointer mb-2 italic text-[0.9rem]",
-		"markdown": "prose lg:prose-xl"
+	'tailwind': {
+		'cell-content': 'rounded flex mb-1.5',
+		'input-code': 'overflow-auto border border-[#999] rounded m-0',
+		'code': 'font-mono text-[0.95em] p-0',
+		'output': 'rounded max-h-screen overflow-auto w-full',
+		'out-code-row': 'flex flex-row items-center',
+		'out-stream': 'p-0 m-auto',
+		'out-result': 'p-0 m-auto',
+		'out-error': 'text-[#ff6b6b] font-bold',
+		'code-row': 'w-full',
+		'prompt': 'w-[90px] font-mono select-none flex-shrink-0 text-right p-1.5',
+		'cell-collapsed': 'rounded p-2 cursor-pointer relative',
+		'toggle-btn': 'bg-none border-none cursor-pointer mb-2 italic text-[0.9rem]',
+		'markdown': 'prose lg:prose-xl'
 	},
-	"bootstrap": {
-		"cell-content": "rounded d-flex mb-2",
-		"input-code": "overflow-auto border rounded m-0 border-secondary",
-		"code": "font-monospace p-0",
-		"output": "rounded overflow-auto w-100",
-		"out-code-row": "d-flex flex-row align-items-center",
-		"out-stream": "p-0 m-auto",
-		"out-result": "p-0 m-auto",
-		"out-error": "text-danger fw-bold",
-		"code-row": "w-100",
-		"prompt": "w-25 font-monospace user-select-none flex-shrink-0 text-end py-1 px-1 text-secondary",
-		"cell-collapsed": "rounded p-2 cursor-pointer position-relative",
-		"toggle-btn": "bg-transparent border-0 cursor-pointer mb-2 fst-italic",
+	'bootstrap': {
+		'cell-content': 'rounded d-flex mb-2',
+		'input-code': 'overflow-auto border rounded m-0 border-secondary',
+		'code': 'font-monospace p-0',
+		'output': 'rounded overflow-auto w-100',
+		'out-code-row': 'd-flex flex-row align-items-center',
+		'out-stream': 'p-0 m-auto',
+		'out-result': 'p-0 m-auto',
+		'out-error': 'text-danger fw-bold',
+		'code-row': 'w-100',
+		'prompt': 'w-25 font-monospace user-select-none flex-shrink-0 text-end py-1 px-1 text-secondary',
+		'cell-collapsed': 'rounded p-2 cursor-pointer position-relative',
+		'toggle-btn': 'bg-transparent border-0 cursor-pointer mb-2 fst-italic'
 	}
-}
+};
 
 export class Cell {
 	public cell_type!: 'markdown' | 'code' | 'raw';
@@ -57,19 +57,12 @@ export class Cell {
 	}
 
 	public getArraySource() {
-		if (typeof this.source === 'string') {
-			return [this.source];
-		} else {
-			return this.source as unknown as string[];
-		}
+		return (typeof this.source === 'string') ? [this.source] : this.source as unknown as string[];
 	}
 
 	public getStringSource() {
-		if (typeof this.source === 'string') {
-			return this.source as unknown as string + '';
-		} else {
-			return (this.source as unknown as string[]).join('') + '';
-		}
+		return (typeof this.source === 'string') ? this.source as unknown as string + '':
+		       (this.source as unknown as string[]).join('') + '';
 	}
 
 	findOutputType(output: any) {
@@ -106,8 +99,7 @@ export class MarkdownCell extends Cell {
 	public render(ui: UILibrary) {
 		return `<div class="cell-content ${UI_ADAPTER[ui]?.['cell-content'] ?? ''}">
 						<div class="prompt in-prompt ${UI_ADAPTER[ui]?.['prompt'] ?? ''}"></div>
-						<div class="markdown ${UI_ADAPTER[ui]?.['markdown'] ?? ''}">${marked(this.getStringSource())}</div>
-					</div>`;
+						<div class="markdown ${UI_ADAPTER[ui]?.['markdown'] ?? ''}">${marked(this.getStringSource())}</div></div>`;
 	}
 }
 
@@ -131,21 +123,16 @@ export class CodeCell extends Cell {
 			return '';
 		}
 
-		const output = this.outputs.map(o => o.render(ui, this.metadata?.language ?? language)).join('\n');
-
 		if (this.metadata!.executionInfo) {
 			this.execution_count = 1;
 		}
 
-		let parsedCode = '';
-		if (this.metadata?.language || language) {
-			parsedCode = hljs.highlight(this.getStringSource(), {language: (this.metadata?.language ?? language)!}).value;
-		} else {
-			parsedCode = hljs.highlightAuto(this.getStringSource()).value;
-		}
+		let parsedCode = (this.metadata?.language || language) ?
+		                 hljs.highlight(this.getStringSource(), {language: (this.metadata?.language ?? language)!}).value :
+		                 hljs.highlightAuto(this.getStringSource()).value;
+		const output = this.outputs.map(o => o.render(ui, this.metadata?.language ?? language)).join('\n');
 
-		return `
-	<div class="cell-content ${UI_ADAPTER[ui]?.['cell-content'] ?? ''}">
+		return `<div class="cell-content ${UI_ADAPTER[ui]?.['cell-content'] ?? ''}">
     <div class="prompt in-prompt ${UI_ADAPTER[ui]?.['prompt'] ?? ''}">In&nbsp;[${this.execution_count ?? '&nbsp;'}]:</div>
     <div class="in code-row ${UI_ADAPTER[ui]?.['code-row'] ?? ''}">
       <pre class="input-code ${UI_ADAPTER[ui]?.['input-code'] ?? ''}"><code class="hljs">${parsedCode}</code></pre>
@@ -154,12 +141,8 @@ export class CodeCell extends Cell {
     ${output ? `
 	<div class="cell-content ${UI_ADAPTER[ui]?.['cell-content'] ?? ''}">
 		<div class="prompt out-prompt ${UI_ADAPTER[ui]?.['prompt'] ?? ''}">Out&nbsp;[${this.execution_count ?? '&nbsp;'}]:</div>
-    <div class="out code-row ${UI_ADAPTER[ui]?.['out-code-row'] ?? ''}">
-      <div class="outputs">${output}</div>
-    </div>
-  </div>
-    ` : ''}
-  `;
+    <div class="out code-row ${UI_ADAPTER[ui]?.['out-code-row'] ?? ''}"><div class="outputs">${output}</div></div>
+  </div>` : ''}`;
 	}
 }
 

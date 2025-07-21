@@ -9,7 +9,8 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css"
+	      integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
 	<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tailwindcss/typography@0.4.1/dist/typography.css">
 	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>-->
 	<!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">-->
@@ -17,10 +18,10 @@
 </head>
 <body>
   <input type="file" id="fileInput" accept=".ipynb"/>
-  <div id="notebook" class="leading-relaxed mx-auto p-4 max-w-4xl col-xl-7"></div>
+  <div id="notebook" class="leading-relaxed mx-auto p-4 max-w-4xl col-xl-9"></div>
 
     <script type="module">
-	    import {Notebook} from 'https://cdn.jsdelivr.net/npm/notebook-viewer-ts@0.0.10/cdn/notebook-viewer-ts.es.js';
+	    import {Notebook} from 'https://cdn.jsdelivr.net/npm/notebook-viewer-ts@0.0.12/cdn/notebook-viewer-ts.es.js';
 
 	    fetch('./sample.ipynb')
 		    .then(r => r.text())
@@ -30,7 +31,7 @@
 		    });
   </script>
 	<script type="module">
-	    import {Notebook} from 'https://cdn.jsdelivr.net/npm/notebook-viewer-ts@0.0.10/cdn/notebook-viewer-ts.es.js';
+	    import {Notebook} from 'https://cdn.jsdelivr.net/npm/notebook-viewer-ts@0.0.12/cdn/notebook-viewer-ts.es.js';
 
 	    const input = document.getElementById('fileInput');
 

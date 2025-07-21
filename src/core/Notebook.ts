@@ -7,13 +7,13 @@ export class Notebook {
 	public metadata!: Metadata;
 	public nbformat!: number;
 	public nbformat_minor!: number;
-	public displayText: string = "Display";
-	public foldText: string = "Fold";
+	public displayText: string = 'Display';
+	public foldText: string = 'Fold';
 
 	constructor(json: string | any) {
 		const raw = typeof json === 'string' ? JSON.parse(json) : json;
 
-		if(raw.worksheets){
+		if (raw.worksheets) {
 			raw.cells = raw.worksheets[0].cells;
 		}
 
@@ -27,6 +27,7 @@ export class Notebook {
 					break;
 				case 'raw':
 					this.cells.push(new RawCell(c));
+					break;
 			}
 		});
 		this.metadata = raw.metadata;
@@ -51,10 +52,10 @@ export class Notebook {
 			return `
       <div class="cell ${typeClass} p-2 mb-4">
 		    ${isCollapsed ?
-		    `<button type = "button" class = "toggle-btn text-sm text-gray-400" data-toggle="#${id}">
+			    `<button type = "button" class = "toggle-btn text-sm text-gray-400" data-toggle="#${id}">
 					▶ ${this.displayText}
 					</button>` : ''
-				}
+			}
         <div id="${id}" class="${isCollapsed ? 'hidden' : ''}">
           ${content}
         </div>
@@ -64,7 +65,7 @@ export class Notebook {
 			return `
       <div id="parent-${id}" class="cell ${isCollapsed ? 'accordion-item' : ''} ${typeClass} mb-4 p-2">
         ${isCollapsed ?
-        `<h2 class="accordion-header">
+			    `<h2 class="accordion-header">
 					<button class="accordion-button btn-outline-secondary" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#${id}" aria-controls="${id}">
           ${this.displayText}
           </button></h2>` : ''}

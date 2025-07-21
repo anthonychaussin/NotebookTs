@@ -4,11 +4,30 @@ import {UI_ADAPTER} from './Cell';
 import {UILibrary} from './Notebook';
 
 export abstract class CellOutput {
-	public output_type!: 'execute_result' | 'stream' | 'display_data' | 'error' | 'pyout'|'pyerr';
+	public output_type!: 'execute_result' | 'stream' | 'display_data' | 'error' | 'pyout' | 'pyerr';
 
 	public abstract render(ui: UILibrary, language?: string): string;
-	public getLatextRender(ui: UILibrary, latex: string[]): string {
-		return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${katex.renderToString(latex.join('').split('$').filter(Boolean).join('').trim().replace(/begin\{.*}/, "begin{aligned}").replace(/end\{.*}/, "end{aligned}"), { throwOnError: false, displayMode: true, trust: false })}</pre>`;
+
+	public getLatexRender(ui: UILibrary, latex: string[]): string {
+		return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${katex.renderToString(latex.join('')
+		                                                                                                       .split('$')
+		                                                                                                       .filter(Boolean)
+		                                                                                                       .join('')
+		                                                                                                       .trim()
+		                                                                                                       .replace(/begin\{.*}/, 'begin{aligned}')
+		                                                                                                       .replace(/end\{.*}/, 'end{aligned}'), {
+			                                                                                                  throwOnError: false,
+			                                                                                                  displayMode: true,
+			                                                                                                  trust: false
+		                                                                                                  })}</pre>`;
+	}
+
+	public getHtmlRender(html: string): string {
+		return `<iframe sandbox="allow-same-origin" style="width:100%;border:none;height:150px" srcdoc="${html.replace(/"/g, '&quot;')}"></iframe>`;
+	}
+
+	public getImgRender(extension: string, base64: string): string {
+		return `<img src="data:image/${extension};base64, ${base64}" alt="code result img">`;
 	}
 }
 
@@ -54,6 +73,7 @@ export class CellOutputData extends CellOutput {
 		'application/json'?: [{json: string}],
 	};
 	public png?: string;
+	public jpeg?: string;
 	public latex?: string[];
 	public metadata?: CellOutputMetadata;
 
@@ -63,24 +83,22 @@ export class CellOutputData extends CellOutput {
 	}
 
 	public render(ui: UILibrary, language?: string): string {
+		if (this.png) {
+			return this.getImgRender('png', this.png);
+		} else if (this.jpeg) {
+			return this.getImgRender('jpeg', this.jpeg);
+		} else if (this.latex) {
+			return this.getLatexRender(ui, this.latex);
+		}
+
 		let display_data = this.data ?? {};
 		let disp_result = '';
-		if(this.png){
-			return `<img src="data:image/png;base64, ${this.png}" alt="code result img">`;
-		}else if(this.latex){
-			return this.getLatextRender(ui, this.latex);
-		}
+
 		if (display_data['text/html']) {
-			disp_result += `
-  <iframe
-    sandbox="allow-same-origin"
-    style="width:100%;border:none;height:150px"
-    srcdoc="${display_data['text/html'].join('').replace(/"/g, '&quot;')}"
-  ></iframe>
-`;
+			disp_result += this.getHtmlRender(display_data['text/html'].join(''));
 		}
 		if (display_data['image/png']) {
-			disp_result += `<img src="data:image/png;base64, ${display_data['image/png']}" alt="code result img">`;
+			disp_result += display_data['image/png'].map(d => this.getImgRender('png', d));
 		}
 		if (display_data['text/plain'] && !disp_result) {
 			disp_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(display_data['text/plain'].join(''), {language: 'plaintext'}).value}</pre>`;
@@ -112,10 +130,10 @@ export class CellOutputExecResult extends CellOutput {
 			exe_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(execute_result['text/plain'].join(''), {language: 'bash'}).value}</pre>`;
 		}
 		if (execute_result['text/html']) {
-			exe_result += hljs.highlight(execute_result['text/html'].join(''), {language: 'html'}).value;
+			exe_result += this.getHtmlRender(hljs.highlight(execute_result['text/html'].join(''), {language: 'html'}).value);
 		}
 		if (execute_result['image/png']) {
-			exe_result += `<img src="${execute_result['image/png']}" alt="stream result image">`;
+			exe_result += execute_result['image/png'].map(d => this.getImgRender('png', d));
 		}
 		return exe_result;
 	}
@@ -136,30 +154,26 @@ export class CellPyOutputExecResult extends CellOutput {
 	constructor(c: any) {
 		super();
 		Object.assign(this, c);
-		if(this.prompt_number) {
+		if (this.prompt_number) {
 			this.execution_count = this.prompt_number;
 		}
 	}
 
 	public render(ui: UILibrary, language?: string): string {
-		if(this.jpeg) {
-			return `<img src="data:image/jpeg;base64, ${this.jpeg}" alt="code result img">`;
-		} else if(this.png) {
-			return `<img src="data:image/png;base64, ${this.png}" alt="code result img">`;
-		} else if(this.html){
-			return `
-  <iframe
-    sandbox="allow-same-origin"
-    style="width:100%;border:none;height:150px"
-    srcdoc="${this.html.join('').replace(/"/g, '&quot;')}"
-  ></iframe>
-`;
-		} else if(this.svg){
-			return this.svg.join('');
-		} else if(this.latex){
-			this.getLatextRender(ui, this.latex);
+		switch (true) {
+			case !!this.png:
+				return this.getImgRender('png', this.png);
+			case !!this.jpeg:
+				return this.getImgRender('jpeg', this.jpeg);
+			case !!this.html:
+				return this.getHtmlRender(this.html.join(''));
+			case !!this.svg:
+				return this.svg.join('');
+			case !!this.latex:
+				return this.getLatexRender(ui, this.latex);
+			default:
+				return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(this.text.join(''), {language: 'python'}).value}</pre>`;
 		}
-		return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(this.text.join(''), {language: 'python'}).value}</pre>`;
 	}
 }
 
@@ -176,7 +190,7 @@ export class CellPyOutputExecError extends CellOutput {
 	constructor(c: any) {
 		super();
 		Object.assign(this, c);
-		if(this.prompt_number) {
+		if (this.prompt_number) {
 			this.execution_count = this.prompt_number;
 		}
 	}
