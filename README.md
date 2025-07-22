@@ -74,7 +74,7 @@ Returns a complete HTML file to be injected into your DOM.
 ```ts
 @Component({
   selector: 'ipynb-viewer',
-  template: `<div [innerHTML]="html"></div>`
+  template: `<div [innerHTML]="html()"></div>`
 })
 export class NotebookViewerComponent {
   notebookJson: string = input<string>();
