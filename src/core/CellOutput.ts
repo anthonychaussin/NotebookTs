@@ -1,7 +1,8 @@
-import hljs from 'highlight.js';
+import hljs from 'highlight.js/lib/core';
 import katex from 'katex';
 import {UI_ADAPTER} from './Cell';
 import {UILibrary} from './Notebook';
+import Convert from 'ansi-to-html';
 
 export abstract class CellOutput {
 	public output_type!: 'execute_result' | 'stream' | 'display_data' | 'error' | 'pyout' | 'pyerr';
@@ -49,6 +50,7 @@ export class CellOutputError extends CellOutput {
 	public evalue!: string;
 	public traceback!: string[];
 	public metadata?: CellOutputMetadata;
+	private convert = new Convert({newline: true});
 
 	constructor(c: any) {
 		super();
@@ -56,16 +58,17 @@ export class CellOutputError extends CellOutput {
 	}
 
 	public render(ui: UILibrary, language?: string): string {
-		return `<pre class="output-error ${UI_ADAPTER[ui]?.['out-error'] ?? ''}">${this.ename}: ${this.evalue}\n${this.traceback?.join('\n')}</pre>`;
+		return `<pre class="output-error ${UI_ADAPTER[ui]?.['out-error'] ?? ''}">${this.ename}: ${this.evalue}</pre>
+						<pre class="output-error ${UI_ADAPTER[ui]?.['out-error'] ?? ''}">${this.getHtmlRender(this.traceback?.map(h => this.convert.toHtml(h))?.join('<br>'))}</pre>`;
 	}
 }
 
 export class CellOutputData extends CellOutput {
 	public output_type!: 'display_data';
 	public data?: {
-		'text/plain'?: string[];
-		'text/html'?: string[];
-		'image/png'?: string[];
+		'text/plain'?: string[]|string;
+		'text/html'?: string[]|string;
+		'image/png'?: string[]|string;
 		'application/json'?: [{json: string}],
 	};
 	public png?: string;
@@ -89,15 +92,27 @@ export class CellOutputData extends CellOutput {
 
 		let display_data = this.data ?? {};
 		let disp_result = '';
-
 		if (display_data['text/html']) {
-			disp_result += this.getHtmlRender(display_data['text/html'].join(''));
+			if(typeof display_data['text/html'] === 'string') {
+				disp_result += this.getHtmlRender(display_data['text/html']);
+			} else {
+				disp_result += this.getHtmlRender(display_data['text/html'].join(''));
+			}
+
 		}
 		if (display_data['image/png']) {
-			disp_result += display_data['image/png'].map(d => this.getImgRender('png', d));
+			if(typeof display_data['image/png'] === 'string') {
+				disp_result += this.getImgRender('png', display_data['image/png']);
+			} else {
+				disp_result += display_data['image/png'].map(d => this.getImgRender('png', d));
+			}
 		}
 		if (display_data['text/plain'] && !disp_result) {
-			disp_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(display_data['text/plain'].join(''), {language: 'plaintext'}).value}</pre>`;
+			if(typeof display_data['text/plain'] === 'string') {
+				disp_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(display_data['text/plain'], {language: 'plaintext'}).value}</pre>`;
+			} else {
+				disp_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(display_data['text/plain'].join(''), {language: 'plaintext'}).value}</pre>`;
+			}
 		}
 		return disp_result;
 	}
@@ -122,11 +137,10 @@ export class CellOutputExecResult extends CellOutput {
 	public render(ui: UILibrary, language?: string): string {
 		const execute_result = this.data ?? {};
 		let exe_result = '';
-		if (execute_result['text/plain']) {
-			exe_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(execute_result['text/plain'].join(''), {language: 'bash'}).value}</pre>`;
-		}
 		if (execute_result['text/html']) {
-			exe_result += this.getHtmlRender(hljs.highlight(execute_result['text/html'].join(''), {language: 'html'}).value);
+			exe_result = this.getHtmlRender(execute_result['text/html'].join(''));
+		} else if (execute_result['text/plain']) {
+			exe_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(execute_result['text/plain'].join(''), {language: 'bash'}).value}</pre>`;
 		}
 		if (execute_result['image/png']) {
 			exe_result += execute_result['image/png'].map(d => this.getImgRender('png', d));

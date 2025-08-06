@@ -10,8 +10,9 @@ export default defineConfig({
 			                            formats: ['es', 'umd']
 		                            },
 		                            rollupOptions: {},
-		                            minify: true,
+		                            sourcemap: false,
 		                            outDir: 'cdn',
-		                            emptyOutDir: true
+		                            emptyOutDir: true,
+		                            minify: true
 	                            }
                             });

@@ -1,5 +1,5 @@
-import hljs from 'highlight.js';
-import {marked} from 'marked';
+import hljs from 'highlight.js/lib/core';
+import {micromark} from 'micromark'
 import {
 	CellOutput,
 	CellOutputData,
@@ -99,7 +99,7 @@ export class MarkdownCell extends Cell {
 	public render(ui: UILibrary) {
 		return `<div class="cell-content ${UI_ADAPTER[ui]?.['cell-content'] ?? ''}">
 						<div class="prompt in-prompt ${UI_ADAPTER[ui]?.['prompt'] ?? ''}"></div>
-						<div class="markdown ${UI_ADAPTER[ui]?.['markdown'] ?? ''}">${marked(this.getStringSource())}</div></div>`;
+						<div class="markdown ${UI_ADAPTER[ui]?.['markdown'] ?? ''}">${micromark(this.getStringSource())}</div></div>`;
 	}
 }
 
