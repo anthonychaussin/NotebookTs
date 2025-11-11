@@ -42,16 +42,17 @@ code {
 .markdown p, .markdown ul { margin : 0.5em 0; }
 
 .out.code-row {
-	display        : flex;
-	flex-direction : row;
-	align-items    : center;
+        display        : flex;
+        flex-direction : row;
+        align-items    : flex-start;
 }
 
 .outputs {
-	border-radius : 4px;
-	max-height    : 100vh;
-	overflow      : auto;
-	width         : 100%;
+        border-radius : 4px;
+        max-height    : 100vh;
+        overflow      : auto;
+        width         : 100%;
+        flex          : 1 1 auto;
 }
 
 .output-stream, .output-result {
