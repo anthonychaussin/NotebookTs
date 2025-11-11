@@ -6,7 +6,12 @@
     "esModuleInterop": true,
     "strict": true,
     "outDir": "dist",
-    "declaration": true
+    "declaration": true,
+    "baseUrl": ".",
+    "paths": {
+      "micromark-extension-gfm": ["src/vendor/micromark-extension-gfm.ts"],
+      "micromark-extension-math": ["src/vendor/micromark-extension-math.ts"]
+    }
   },
   "include": [
     "src"

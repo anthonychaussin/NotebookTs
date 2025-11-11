@@ -1,4 +1,4 @@
-import hljs from 'highlight.js/lib/core';
+import hljs from 'highlight.js';
 import katex from 'katex';
 import {UI_ADAPTER} from './Cell';
 import {UILibrary} from './Notebook';

@@ -1,15 +1,16 @@
 import hljs from '../highlight';
 import {micromark} from 'micromark'
 import {
-	CellOutput,
-	CellOutputData,
-	CellOutputError,
-	CellOutputExecResult,
-	CellOutputStream,
-	CellPyOutputExecError,
-	CellPyOutputExecResult
+        CellOutput,
+        CellOutputData,
+        CellOutputError,
+        CellOutputExecResult,
+        CellOutputStream,
+        CellPyOutputExecError,
+        CellPyOutputExecResult
 } from './CellOutput';
 import {UILibrary} from './Notebook';
+import {renderMarkdown} from './markdown';
 
 export const UI_ADAPTER: any = {
 	'tailwind': {
@@ -98,9 +99,9 @@ export class MarkdownCell extends Cell {
 
 	public render(ui: UILibrary) {
 		return `<div class="cell-content ${UI_ADAPTER[ui]?.['cell-content'] ?? ''}">
-						<div class="prompt in-prompt ${UI_ADAPTER[ui]?.['prompt'] ?? ''}"></div>
-						<div class="markdown ${UI_ADAPTER[ui]?.['markdown'] ?? ''}">${micromark(this.getStringSource())}</div></div>`;
-	}
+                                                <div class="prompt in-prompt ${UI_ADAPTER[ui]?.['prompt'] ?? ''}"></div>
+                                                <div class="markdown ${UI_ADAPTER[ui]?.['markdown'] ?? ''}">${renderMarkdown(this.getStringSource())}</div></div>`;
+        }
 }
 
 export class CodeCell extends Cell {
