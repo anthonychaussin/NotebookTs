@@ -1,5 +1,9 @@
 # notebook-viewer-ts
 
+[![npm version](https://img.shields.io/npm/v/notebook-viewer-ts.svg)](https://www.npmjs.com/package/notebook-viewer-ts)
+[![npm downloads](https://img.shields.io/npm/dm/notebook-viewer-ts.svg)](https://www.npmjs.com/package/notebook-viewer-ts)
+[![license](https://img.shields.io/npm/l/notebook-viewer-ts.svg)](LICENSE)
+
 📘 HTML viewer for Jupyter .ipynb files with Markdown rendering, code, outputs and folding.
 
 - ✅ Object oriented (`Notebook`, `Cell`, `CellOutput`)
