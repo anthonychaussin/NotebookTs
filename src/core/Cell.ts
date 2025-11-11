@@ -1,4 +1,4 @@
-import hljs from 'highlight.js/lib/core';
+import hljs from 'highlight.js';
 import {micromark} from 'micromark'
 import {
 	CellOutput,
@@ -10,6 +10,8 @@ import {
 	CellPyOutputExecResult
 } from './CellOutput';
 import {UILibrary} from './Notebook';
+import { gfm, gfmHtml } from 'micromark-extension-gfm';
+import { math, mathHtml } from 'micromark-extension-math';
 
 export const UI_ADAPTER: any = {
 	'tailwind': {
@@ -90,16 +92,42 @@ export class MarkdownCell extends Cell {
 	public cell_type!: 'markdown';
 	public outputs: string[];
 
+	private static markOption = ({
+			extensions: [math(), gfm()], 
+			htmlExtensions: [mathHtml(), gfmHtml()],
+			allowDangerousHtml: true
+		});
+
 	constructor(c: any) {
 		super(c);
 		Object.assign(this, c);
 		this.outputs = [];
 	}
 
+	static addHeadingIds(html: string): string {
+    	return html.replace(/<h([1-6])>([^<]+)<\/h\1>/g, (_, level, content) => {
+        	const slug = MarkdownCell.slugify(content);
+        	return `<h${level} id="${slug}">${content}</h${level}>`;
+    	});
+	}
+
+ 	static slugify(text: string): string {
+    	return text
+        	.trim()
+        	.replace(/[^\w\s-]/g, '')
+        	.replace(/\s+/g, '-');
+	}
+
+
+	static renderMarkdown(source: string): string {
+    	const baseHtml = micromark(source, MarkdownCell.markOption);
+    	return MarkdownCell.addHeadingIds(baseHtml);
+	}
+
 	public render(ui: UILibrary) {
 		return `<div class="cell-content ${UI_ADAPTER[ui]?.['cell-content'] ?? ''}">
 						<div class="prompt in-prompt ${UI_ADAPTER[ui]?.['prompt'] ?? ''}"></div>
-						<div class="markdown ${UI_ADAPTER[ui]?.['markdown'] ?? ''}">${micromark(this.getStringSource())}</div></div>`;
+						<div class="markdown ${UI_ADAPTER[ui]?.['markdown'] ?? ''}">${MarkdownCell.renderMarkdown(this.getStringSource())}</div></div>`;
 	}
 }
 
