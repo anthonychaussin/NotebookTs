@@ -2,7 +2,41 @@ import hljs from 'highlight.js/lib/core';
 import katex from 'katex';
 import {UI_ADAPTER} from './Cell';
 import {UILibrary} from './Notebook';
-import Convert from 'ansi-to-html';
+import {hasAnsiEscape, renderAnsiText} from './ansi';
+
+const getRegisteredLanguage = (language?: string): string | undefined => {
+        if (!language) {
+                return undefined;
+        }
+        const getLanguage = (hljs as unknown as {getLanguage?: (lang: string) => unknown}).getLanguage;
+        if (typeof getLanguage === 'function' && !getLanguage(language)) {
+                return undefined;
+        }
+        return language;
+};
+
+const escapeHtml = (value: string): string => value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+
+const renderTextContent = (text: string, language?: string): string => {
+        if (hasAnsiEscape(text)) {
+                return renderAnsiText(text);
+        }
+        const registeredLanguage = getRegisteredLanguage(language);
+        if (registeredLanguage) {
+                return hljs.highlight(text, {language: registeredLanguage}).value;
+        }
+        return escapeHtml(text);
+};
+
+const resolveLanguage = (metadataLanguage?: string, fallbackLanguage?: string): string | undefined =>
+        metadataLanguage ?? fallbackLanguage;
+
+const normalizeText = (value?: string[] | string): string => Array.isArray(value) ? value.join('') : (value ?? '');
 
 export abstract class CellOutput {
 	public output_type!: 'execute_result' | 'stream' | 'display_data' | 'error' | 'pyout' | 'pyerr';
@@ -34,14 +68,18 @@ export class CellOutputStream extends CellOutput {
 	public text!: string[];
 	public metadata?: CellOutputMetadata;
 
-	constructor(c: any) {
-		super();
-		Object.assign(this, c);
-	}
+        constructor(c: any) {
+                super();
+                Object.assign(this, c);
+        }
 
-	public render(ui: UILibrary, language?: string): string {
-		return `<pre class="output-stream ${UI_ADAPTER[ui]?.['out-stream'] ?? ''}">${hljs.highlight(this.text?.join(''), {language: 'bash'}).value}</pre>`;
-	}
+        public render(ui: UILibrary, language?: string): string {
+                const text = normalizeText(this.text);
+                const metadataLanguage = this.metadata?.language;
+                const content = renderTextContent(text, resolveLanguage(metadataLanguage, language));
+
+                return `<pre class="output-stream ${UI_ADAPTER[ui]?.['out-stream'] ?? ''}">${content}</pre>`;
+        }
 }
 
 export class CellOutputError extends CellOutput {
@@ -50,17 +88,18 @@ export class CellOutputError extends CellOutput {
 	public evalue!: string;
 	public traceback!: string[];
 	public metadata?: CellOutputMetadata;
-	private convert = new Convert({newline: true});
 
-	constructor(c: any) {
-		super();
-		Object.assign(this, c);
-	}
+        constructor(c: any) {
+                super();
+                Object.assign(this, c);
+        }
 
-	public render(ui: UILibrary, language?: string): string {
-		return `<pre class="output-error ${UI_ADAPTER[ui]?.['out-error'] ?? ''}">${this.ename}: ${this.evalue}</pre>
-						<pre class="output-error ${UI_ADAPTER[ui]?.['out-error'] ?? ''}">${this.getHtmlRender(this.traceback?.map(h => this.convert.toHtml(h))?.join('<br>'))}</pre>`;
-	}
+        public render(ui: UILibrary, language?: string): string {
+                const tracebackHtml = renderAnsiText(this.traceback?.join('\n') ?? '');
+                const header = [this.ename, this.evalue].filter(Boolean).join(': ');
+                return `<pre class="output-error ${UI_ADAPTER[ui]?.['out-error'] ?? ''}">${escapeHtml(header)}</pre>
+                                                <pre class="output-error ${UI_ADAPTER[ui]?.['out-error'] ?? ''}">${this.getHtmlRender(tracebackHtml)}</pre>`;
+        }
 }
 
 export class CellOutputData extends CellOutput {
@@ -107,15 +146,14 @@ export class CellOutputData extends CellOutput {
 				disp_result += display_data['image/png'].map(d => this.getImgRender('png', d));
 			}
 		}
-		if (display_data['text/plain'] && !disp_result) {
-			if(typeof display_data['text/plain'] === 'string') {
-				disp_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(display_data['text/plain'], {language: 'plaintext'}).value}</pre>`;
-			} else {
-				disp_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(display_data['text/plain'].join(''), {language: 'plaintext'}).value}</pre>`;
-			}
-		}
-		return disp_result;
-	}
+                if (display_data['text/plain'] && !disp_result) {
+                        const textPlain = normalizeText(display_data['text/plain']);
+                        const metadataLanguage = this.metadata?.['text/plain']?.language as string | undefined;
+                        const content = renderTextContent(textPlain, resolveLanguage(metadataLanguage, language));
+                        disp_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${content}</pre>`;
+                }
+                return disp_result;
+        }
 }
 
 export class CellOutputExecResult extends CellOutput {
@@ -139,13 +177,16 @@ export class CellOutputExecResult extends CellOutput {
 		let exe_result = '';
 		if (execute_result['text/html']) {
 			exe_result = this.getHtmlRender(execute_result['text/html'].join(''));
-		} else if (execute_result['text/plain']) {
-			exe_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(execute_result['text/plain'].join(''), {language: 'bash'}).value}</pre>`;
-		}
-		if (execute_result['image/png']) {
-			exe_result += execute_result['image/png'].map(d => this.getImgRender('png', d));
-		}
-		return exe_result;
+                } else if (execute_result['text/plain']) {
+                        const textPlain = normalizeText(execute_result['text/plain']);
+                        const metadataLanguage = this.metadata?.['text/plain']?.language as string | undefined;
+                        const content = renderTextContent(textPlain, resolveLanguage(metadataLanguage, language));
+                        exe_result = `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${content}</pre>`;
+                }
+                if (execute_result['image/png']) {
+                        exe_result += execute_result['image/png'].map(d => this.getImgRender('png', d));
+                }
+                return exe_result;
 	}
 }
 
@@ -181,10 +222,13 @@ export class CellPyOutputExecResult extends CellOutput {
 				return this.svg.join('');
 			case !!this.latex:
 				return this.getLatexRender(ui, this.latex);
-			default:
-				return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(this.text.join(''), {language: 'python'}).value}</pre>`;
-		}
-	}
+                        default: {
+                                const metadataLanguage = this.metadata?.['text/plain']?.language as string | undefined;
+                                const content = renderTextContent(this.text.join(''), resolveLanguage(metadataLanguage, language));
+                                return `<pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${content}</pre>`;
+                        }
+                }
+        }
 }
 
 
@@ -205,18 +249,25 @@ export class CellPyOutputExecError extends CellOutput {
 		}
 	}
 
-	public render(ui: UILibrary, language?: string): string {
-		return `<h3>${this.ename}</h3><pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${hljs.highlight(this.traceback.join(''), {language: 'python'}).value}</pre>`;
-	}
+        public render(ui: UILibrary, language?: string): string {
+                const content = renderTextContent(this.traceback.join(''), resolveLanguage(this.metadata?.['text/plain']?.language as string | undefined, language));
+                return `<h3>${escapeHtml(this.ename ?? '')}</h3><pre class="output-result ${UI_ADAPTER[ui]?.['out-result'] ?? ''}">${content}</pre>`;
+        }
+}
+
+export interface CellOutputMetadataEntry {
+        language?: string;
+        [key: string]: any;
 }
 
 export interface CellOutputMetadata {
-	isolated?: boolean;
-	'text/plain'?: Record<string, any>;
-	'text/html'?: Record<string, any>;
-	'image/png'?: {
-		width?: number;
-		height?: number;
-	};
-	'application/json'?: Record<string, any>;
+        isolated?: boolean;
+        language?: string;
+        'text/plain'?: CellOutputMetadataEntry;
+        'text/html'?: Record<string, any>;
+        'image/png'?: {
+                width?: number;
+                height?: number;
+        };
+        'application/json'?: Record<string, any>;
 }
