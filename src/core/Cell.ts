@@ -1,4 +1,5 @@
-import hljs from 'highlight.js';
+import hljs from '../highlight';
+import {micromark} from 'micromark'
 import {
         CellOutput,
         CellOutputData,
@@ -127,10 +128,21 @@ export class CodeCell extends Cell {
 			this.execution_count = 1;
 		}
 
-		let parsedCode = (this.metadata?.language || language) ?
-		                 hljs.highlight(this.getStringSource(), {language: (this.metadata?.language ?? language)!}).value :
-		                 hljs.highlightAuto(this.getStringSource()).value;
-		const output = this.outputs.map(o => o.render(ui, this.metadata?.language ?? language)).join('\n');
+                const requestedLanguage = this.metadata?.language ?? language;
+                const code = this.getStringSource();
+                const hasRegisteredLanguages = hljs.listLanguages().length > 0;
+                const resolvedLanguage = (requestedLanguage && hljs.getLanguage(requestedLanguage)) ? requestedLanguage : undefined;
+
+                let parsedCode: string;
+
+                if (resolvedLanguage) {
+                        parsedCode = hljs.highlight(code, {language: resolvedLanguage}).value;
+                } else if (hasRegisteredLanguages) {
+                        parsedCode = hljs.highlightAuto(code, requestedLanguage ? [requestedLanguage] : undefined).value;
+                } else {
+                        parsedCode = escapeHtml(code);
+                }
+                const output = this.outputs.map(o => o.render(ui, this.metadata?.language ?? language)).join('\n');
 
 		return `<div class="cell-content ${UI_ADAPTER[ui]?.['cell-content'] ?? ''}">
     <div class="prompt in-prompt ${UI_ADAPTER[ui]?.['prompt'] ?? ''}">In&nbsp;[${this.execution_count ?? '&nbsp;'}]:</div>
@@ -144,6 +156,18 @@ export class CodeCell extends Cell {
     <div class="out code-row ${UI_ADAPTER[ui]?.['out-code-row'] ?? ''}"><div class="outputs">${output}</div></div>
   </div>` : ''}`;
 	}
+}
+
+const HTML_ESCAPE_ENTITIES: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+};
+
+function escapeHtml(value: string): string {
+        return value.replace(/[&<>"']/g, (char) => HTML_ESCAPE_ENTITIES[char]);
 }
 
 export class RawCell extends Cell {
